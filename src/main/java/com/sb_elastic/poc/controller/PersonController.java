@@ -6,12 +6,13 @@ import com.sb_elastic.poc.storage.entities.PersonDocument;
 import com.sb_elastic.poc.storage.repositories.PersonRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
@@ -38,11 +39,16 @@ public class PersonController {
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved person"),
+            @ApiResponse(responseCode = "404", description = "Person not found")
+    })
     @GetMapping("/person/{personId}")
-    public Optional<Person> getPerson(@PathVariable String personId) {
+    public Person getPerson(@PathVariable String personId) {
         var person = this.personRepository.findById(personId);
         this.getPersonCounter.increment();
-        return person.map(personDocument -> new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName()));
+        return person.map(personDocument -> new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/person")

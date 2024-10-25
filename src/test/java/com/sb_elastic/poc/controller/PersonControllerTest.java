@@ -45,6 +45,16 @@ class PersonControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
                 .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
     }
+
+    @Test
+    void testGetNonExistingPerson() throws Exception {
+        var id = "123";
+        Mockito.when(personRepository.findById(id)).thenReturn(Optional.empty());
+
+        client.perform(MockMvcRequestBuilders.get("/person/" + id))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
     @Test
     void testGetPersons() throws Exception {
         var id = "123";

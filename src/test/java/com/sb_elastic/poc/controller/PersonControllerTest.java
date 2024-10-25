@@ -72,4 +72,51 @@ class PersonControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
     }
 
+    @Test
+    void testUpdatePerson() throws Exception {
+        var id = "123";
+        var firstName = "Erik";
+        var lastName = "Finnman";
+
+        var personDocument = new PersonDocument();
+        personDocument.setId(id);
+        personDocument.setFirstName(firstName);
+        personDocument.setLastName(lastName);
+        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.of(personDocument));
+        Mockito.when(personRepository.save(Mockito.any())).thenReturn(personDocument);
+
+        var person = """
+                {
+                "firstName": "Erik2",
+                "lastName": "Finnman2"
+                }
+                """;
+
+        client.perform(MockMvcRequestBuilders.put("/person/"+id)
+                        .content(person)
+                        .contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value("Erik2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value("Finnman2"));
+    }
+
+    @Test
+    void testUpdatePerson_NotFound() throws Exception {
+        var id = "123";
+
+        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        var person = """
+                {
+                "firstName": "Erik",
+                "lastName": "Finnman"
+                }
+                """;
+
+        client.perform(MockMvcRequestBuilders.put("/person/"+id)
+                        .content(person)
+                        .contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 }

@@ -1,0 +1,8 @@
+apiVersion: 1
+
+providers:
+  - name: Default
+    folder: poc
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards/grafana_dashboard.json

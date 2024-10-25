@@ -33,6 +33,20 @@ services:
     networks:
       - es-net
 
+  grafana:
+    depends_on:
+      - prometheus
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/:/etc/grafana/provisioning
+    networks:
+      - es-net
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_SECURITY_ADMIN_PASSWORD=admin
 networks:
   es-net:
 

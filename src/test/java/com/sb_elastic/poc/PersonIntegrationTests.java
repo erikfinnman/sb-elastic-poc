@@ -27,6 +27,7 @@ class PersonIntegrationTests {
 
     @Test
     void testPerson() throws JsonProcessingException {
+        // Create
         var body = """
                 {
                 "firstName": "Erik",
@@ -48,6 +49,7 @@ class PersonIntegrationTests {
         assertThat(person.getFirstName()).isEqualTo("Erik");
         assertThat(person.getLastName()).isEqualTo("Finnman");
 
+        // Update
         var putBody = """
                 {
                 "firstName": "Erik2",
@@ -64,5 +66,10 @@ class PersonIntegrationTests {
 
         assertThat(updatedPerson.getFirstName()).isEqualTo("Erik2");
         assertThat(updatedPerson.getLastName()).isEqualTo("Finnman2");
+
+        // Delete
+        this.restTemplate.delete("http://localhost:" + port + "/person/" + person.getId());
+        response = this.restTemplate.getForObject("http://localhost:" + port + "/person/" + person.getId(), String.class);
+        assertThat(response).contains("\"status\":404");
     }
 }

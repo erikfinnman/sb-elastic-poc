@@ -44,4 +44,32 @@ class PersonControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
                 .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
     }
+
+    @Test
+    void testCreatePerson() throws Exception {
+        var id = "123";
+        var firstName = "Erik";
+        var lastName = "Finnman";
+
+        var personDocument = new PersonDocument();
+        personDocument.setId(id);
+        personDocument.setFirstName(firstName);
+        personDocument.setLastName(lastName);
+        Mockito.when(personRepository.save(Mockito.any())).thenReturn(personDocument);
+
+        var person = """
+                {
+                "firstName": "Erik",
+                "lastName": "Finnman"
+                }
+                """;
+
+        client.perform(MockMvcRequestBuilders.post("/person")
+                        .content(person)
+                        .contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
+                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
+    }
+
 }

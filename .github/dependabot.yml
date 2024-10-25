@@ -6,3 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  # Check for Maven dependencies updates
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"

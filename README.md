@@ -1,5 +1,7 @@
-## How to run
-Start the docker containers (Elasticsearch, Kibana):
+## SpringBoot & Elasticsearch Proof-of-Concept
+A small application to showcase the integration between Spring Data and Elasticsearch.
+
+Start the Docker containers:
 ```
 docker-compose up
 ```
@@ -7,18 +9,25 @@ Run the application (requires Java 23):
 ```
 mvn spring-boot:run
 ```
+Use Kibana to inspect the index mappings created automatically by Spring Data.
 
 The Grafana dashboard was taken from https://grafana.com/grafana/dashboards/19004-spring-boot-statistics/
 
-Login: admin/admin
 
 ## Endpoints
-Swagger: http://localhost:8080/swagger-ui/index.html
+### Swagger
+http://localhost:8080/swagger-ui/index.html
 
-Kibana: http://localhost:5601/app/home#/
+### Kibana
+http://localhost:5601/app/home#/
 
-Spring Actuator (to view e.g. metrics): http://localhost:8080/actuator
+### Spring Actuator (to view e.g. metrics)
+http://localhost:8080/actuator
 
-Grafana: http://localhost:3000/
+### Grafana
+http://localhost:3000/
 
-Prometheus: http://localhost:9090/
+Login: admin/admin
+
+### Prometheus
+http://localhost:9090/

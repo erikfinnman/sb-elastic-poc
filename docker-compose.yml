@@ -22,8 +22,20 @@ services:
     networks:
       - es-net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - es-net
+
 networks:
   es-net:
 
 volumes:
   es-data:
+  prometheus_data:

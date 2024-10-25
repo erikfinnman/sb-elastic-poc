@@ -11,6 +11,8 @@ mvn spring-boot:run
 ```
 Use Kibana to inspect the index mappings created automatically by Spring Data.
 
+Prometheus is used for metrics storage.
+
 The Grafana dashboard was taken from https://grafana.com/grafana/dashboards/19004-spring-boot-statistics/
 
 

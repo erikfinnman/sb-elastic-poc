@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
 import java.util.Optional;
 
 @WebMvcTest(PersonController.class)
@@ -43,6 +44,24 @@ class PersonControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
                 .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
                 .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
+    }
+    @Test
+    void testGetPersons() throws Exception {
+        var id = "123";
+        var firstName = "Erik";
+        var lastName = "Finnman";
+
+        var personDocument = new PersonDocument();
+        personDocument.setId(id);
+        personDocument.setFirstName(firstName);
+        personDocument.setLastName(lastName);
+        Mockito.when(personRepository.findAll()).thenReturn(List.of(personDocument));
+
+        client.perform(MockMvcRequestBuilders.get("/persons"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(id))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value(firstName))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].lastName").value(lastName));
     }
 
     @Test

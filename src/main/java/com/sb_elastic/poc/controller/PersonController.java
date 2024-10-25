@@ -1,7 +1,7 @@
 package com.sb_elastic.poc.controller;
 
-import com.sb_elastic.poc.model.PostPerson;
 import com.sb_elastic.poc.model.Person;
+import com.sb_elastic.poc.model.PostPerson;
 import com.sb_elastic.poc.storage.entities.PersonDocument;
 import com.sb_elastic.poc.storage.repositories.PersonRepository;
 import io.micrometer.core.instrument.Counter;
@@ -10,10 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/person")
+@RequestMapping("/")
 public class PersonController {
 
     private final PersonRepository personRepository;
@@ -28,14 +29,23 @@ public class PersonController {
         this.updatePersonCounter = meterRegistry.counter("person.update.counter");
     }
 
-    @GetMapping("/{personId}")
+    // This should really use pagination, but it returns a List for this simple example
+    @GetMapping("/persons")
+    public List<Person> listPersons() {
+        return this.personRepository.findAll()
+                .stream()
+                .map(personDocument -> new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @GetMapping("/person/{personId}")
     public Optional<Person> getPerson(@PathVariable String personId) {
         var person = this.personRepository.findById(personId);
         this.getPersonCounter.increment();
         return person.map(personDocument -> new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName()));
     }
 
-    @PostMapping("")
+    @PostMapping("/person")
     public Person postPerson(@RequestBody PostPerson person) {
         var personDocument = new PersonDocument();
         personDocument.setFirstName(person.firstName());
@@ -45,7 +55,7 @@ public class PersonController {
         return new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName());
     }
 
-    @PutMapping("/{personId}")
+    @PutMapping("/person/{personId}")
     public Person putPerson(@PathVariable String personId, @RequestBody PostPerson person) {
         return this.personRepository.findById(personId).map(personDocument -> {
             personDocument.setFirstName(person.firstName());

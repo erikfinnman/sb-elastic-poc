@@ -2,6 +2,7 @@ package com.sb_elastic.poc.storage.repositories;
 
 import com.sb_elastic.poc.TestcontainersConfiguration;
 import com.sb_elastic.poc.storage.entities.PersonDocument;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,6 +18,11 @@ class PersonRepositoryTest {
 
     @Autowired
     private PersonRepository personRepository;
+
+    @BeforeEach
+    void deleteAll() {
+        personRepository.deleteAll();
+    }
 
     @Test
     void testStorePerson() {

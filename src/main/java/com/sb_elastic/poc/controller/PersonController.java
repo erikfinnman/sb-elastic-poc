@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -69,6 +70,18 @@ public class PersonController {
             personDocument = this.personRepository.save(personDocument);
             this.updatePersonCounter.increment();
             return new Person(personDocument.getId(), personDocument.getFirstName(), personDocument.getLastName());
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successfully deleted person"),
+            @ApiResponse(responseCode = "404", description = "Person not found")
+    })
+    @DeleteMapping("/person/{personId}")
+    public ResponseEntity<Object> deletePerson(@PathVariable String personId) {
+        return this.personRepository.findById(personId).map(personDocument -> {
+            this.personRepository.deleteById(personDocument.getId());
+            return ResponseEntity.noContent().build();
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

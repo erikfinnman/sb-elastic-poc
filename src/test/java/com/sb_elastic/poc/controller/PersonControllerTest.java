@@ -121,7 +121,7 @@ class PersonControllerTest {
                 }
                 """;
 
-        client.perform(MockMvcRequestBuilders.put("/person/"+id)
+        client.perform(MockMvcRequestBuilders.put("/person/" + id)
                         .content(person)
                         .contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -132,8 +132,6 @@ class PersonControllerTest {
 
     @Test
     void testUpdatePerson_NotFound() throws Exception {
-        var id = "123";
-
         Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         var person = """
@@ -143,9 +141,33 @@ class PersonControllerTest {
                 }
                 """;
 
-        client.perform(MockMvcRequestBuilders.put("/person/"+id)
+        client.perform(MockMvcRequestBuilders.put("/person/123")
                         .content(person)
                         .contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testDeletePerson() throws Exception {
+        var id = "123";
+        var firstName = "Erik";
+        var lastName = "Finnman";
+
+        var personDocument = new PersonDocument();
+        personDocument.setId(id);
+        personDocument.setFirstName(firstName);
+        personDocument.setLastName(lastName);
+        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.of(personDocument));
+
+        client.perform(MockMvcRequestBuilders.delete("/person/" + id))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    void testDeletePerson_NotFound() throws Exception {
+        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        client.perform(MockMvcRequestBuilders.delete("/person/123"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }

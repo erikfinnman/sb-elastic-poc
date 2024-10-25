@@ -6,7 +6,7 @@ import org.springframework.data.repository.ListCrudRepository;
 
 import java.util.List;
 
-public interface PersonRepository extends ListCrudRepository<PersonDocument, Long> {
+public interface PersonRepository extends ListCrudRepository<PersonDocument, String> {
     List<PersonDocument> findPersonDocumentByFirstName(String firstName);
 
     @Query("""

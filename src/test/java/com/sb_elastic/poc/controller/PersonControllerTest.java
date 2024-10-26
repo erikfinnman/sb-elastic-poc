@@ -4,17 +4,21 @@ import com.sb_elastic.poc.TestConfig;
 import com.sb_elastic.poc.storage.entities.PersonDocument;
 import com.sb_elastic.poc.storage.repositories.PersonRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PersonController.class)
 @Import(TestConfig.class)
@@ -37,22 +41,22 @@ class PersonControllerTest {
         personDocument.setFirstName(firstName);
         personDocument.setLastName(lastName);
         var expectedPerson = Optional.of(personDocument);
-        Mockito.when(personRepository.findById(id)).thenReturn(expectedPerson);
+        when(personRepository.findById(id)).thenReturn(expectedPerson);
 
-        client.perform(MockMvcRequestBuilders.get("/person/" + id))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
-                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
-                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
+        client.perform(get("/person/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("firstName").value(firstName))
+                .andExpect(jsonPath("lastName").value(lastName));
     }
 
     @Test
     void testGetNonExistingPerson() throws Exception {
         var id = "123";
-        Mockito.when(personRepository.findById(id)).thenReturn(Optional.empty());
+        when(personRepository.findById(id)).thenReturn(Optional.empty());
 
-        client.perform(MockMvcRequestBuilders.get("/person/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+        client.perform(get("/person/" + id))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -65,13 +69,13 @@ class PersonControllerTest {
         personDocument.setId(id);
         personDocument.setFirstName(firstName);
         personDocument.setLastName(lastName);
-        Mockito.when(personRepository.findAll()).thenReturn(List.of(personDocument));
+        when(personRepository.findAll()).thenReturn(List.of(personDocument));
 
-        client.perform(MockMvcRequestBuilders.get("/persons"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(id))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value(firstName))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].lastName").value(lastName));
+        client.perform(get("/persons"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(id))
+                .andExpect(jsonPath("$[0].firstName").value(firstName))
+                .andExpect(jsonPath("$[0].lastName").value(lastName));
     }
 
     @Test
@@ -84,7 +88,7 @@ class PersonControllerTest {
         personDocument.setId(id);
         personDocument.setFirstName(firstName);
         personDocument.setLastName(lastName);
-        Mockito.when(personRepository.save(Mockito.any())).thenReturn(personDocument);
+        when(personRepository.save(any())).thenReturn(personDocument);
 
         var person = """
                 {
@@ -93,12 +97,12 @@ class PersonControllerTest {
                 }
                 """;
 
-        client.perform(MockMvcRequestBuilders.post("/person")
+        client.perform(post("/person")
                         .content(person)
                         .contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
-                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("firstName").value(firstName))
+                .andExpect(jsonPath("lastName").value(lastName));
     }
 
     @Test
@@ -111,8 +115,8 @@ class PersonControllerTest {
         personDocument.setId(id);
         personDocument.setFirstName(firstName);
         personDocument.setLastName(lastName);
-        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.of(personDocument));
-        Mockito.when(personRepository.save(Mockito.any())).thenReturn(personDocument);
+        when(personRepository.findById(any())).thenReturn(Optional.of(personDocument));
+        when(personRepository.save(any())).thenReturn(personDocument);
 
         var person = """
                 {
@@ -121,18 +125,18 @@ class PersonControllerTest {
                 }
                 """;
 
-        client.perform(MockMvcRequestBuilders.put("/person/" + id)
+        client.perform(put("/person/" + id)
                         .content(person)
                         .contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
-                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value("Erik2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value("Finnman2"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("firstName").value("Erik2"))
+                .andExpect(jsonPath("lastName").value("Finnman2"));
     }
 
     @Test
     void testUpdatePerson_NotFound() throws Exception {
-        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+        when(personRepository.findById(any())).thenReturn(Optional.empty());
 
         var person = """
                 {
@@ -141,10 +145,10 @@ class PersonControllerTest {
                 }
                 """;
 
-        client.perform(MockMvcRequestBuilders.put("/person/123")
+        client.perform(put("/person/123")
                         .content(person)
                         .contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -157,17 +161,17 @@ class PersonControllerTest {
         personDocument.setId(id);
         personDocument.setFirstName(firstName);
         personDocument.setLastName(lastName);
-        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.of(personDocument));
+        when(personRepository.findById(any())).thenReturn(Optional.of(personDocument));
 
         client.perform(MockMvcRequestBuilders.delete("/person/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(status().isNoContent());
     }
 
     @Test
     void testDeletePerson_NotFound() throws Exception {
-        Mockito.when(personRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+        when(personRepository.findById(any())).thenReturn(Optional.empty());
 
         client.perform(MockMvcRequestBuilders.delete("/person/123"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 }
